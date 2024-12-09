@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choisissez votre Pokémon</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Ajout de la police Pixelify Sans -->
     <style>
         @font-face {
             font-family: 'Pixelify Sans';
@@ -23,6 +24,7 @@
 <body class="min-h-screen flex flex-col  font-pixelify">
     <header>
         <div class="h-32 bg-gradient-to-b from-[#B22222] via-[#4B4B4B] to-[#1C1C1C]">
+            <!-- Ajout du logo Pokémon -->
             <img src="/app/assets/Logo-Pokemon.png" alt="Logo Pokémon" class="h-full mx-auto">
         </div>
     </header>
@@ -31,7 +33,9 @@
             <form action="/Combat/demarrerCombat" method="POST">
                 <label for="pokemon" class="text-xl flex self-center p-4">Sélectionnez un Pokémon :</label>
                     <div class="flex justify-evenly mt-8">
+                        <!-- Affichage des Pokémon disponibles -->
                         <?php foreach ($pokemons as $pokemon): ?>
+                            <!-- Affichage des Pokémon en fonction de leur type -->
                             <?php switch ($pokemon['type']) {
                                 case 'Feu':
                                     ?>

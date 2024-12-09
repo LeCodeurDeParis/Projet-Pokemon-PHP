@@ -13,7 +13,7 @@ require_once './app/utils/Autoload.php';
 Autoload::register();
 
 
-
+// Chargement des routes
 $router = new Router();
 $router->dispatch($_SERVER['REQUEST_URI']);
 
