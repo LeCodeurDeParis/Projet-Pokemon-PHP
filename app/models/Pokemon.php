@@ -1,6 +1,7 @@
 <?php
 
-    abstract class Pokemon{
+    abstract class Pokemon implements InterfaceCombattant{
+        public int $id;
         public string $nom;
         public string $type;
         public int $pointsDeVie;
@@ -10,32 +11,25 @@
         public int $vitesse;
         public array $attaques = [];
 
-        public function __construct($nom, $type, $pointsDeVie, $puissanceAttaque, $defense, $vitesse){
+        use Soins;
+
+        public function __construct($id, $nom, $type, $pointsDeVie, $puissanceAttaque, $defense, $vitesse){
+            $this->id = (int) $id;
             $this->nom = $nom;
             $this->type = $type;
-            $this->pointsDeVie = $pointsDeVie;
-            $this->pointsDeVieMax = $pointsDeVie;
-            $this->puissanceAttaque = $puissanceAttaque;
-            $this->defense = $defense;
-            $this->vitesse = $vitesse;
-        }
-
-        public function ajouterAttaque(Attaque $attaque){
-            $this->attaques[] = $attaque;
-        }
-
-        public function attaquer($indexAttaque, $adversaire){
-            echo $this->nom . " utilise " . $this->attaques[$indexAttaque]->getNom() . " !<br>";
-
-            $this->capaciteSpeciale($adversaire, $this->attaques[$indexAttaque]);
+            $this->pointsDeVie = (int) $pointsDeVie;
+            $this->pointsDeVieMax = (int) $pointsDeVie;
+            $this->puissanceAttaque = (int) $puissanceAttaque;
+            $this->defense = (int) $defense;
+            $this->vitesse = (int) $vitesse;
         }
 
         public function recevoirDegats($degats){
-            $this->pointsDeVie -= $degats;
+            $this->pointsDeVie -= (int) $degats;
             if ($this->pointsDeVie < 0) {
                 $this->pointsDeVie = 0;
             }
-            echo $this->nom . " reçoit " . $degats . " points de dégats. " . $this->nom . " a maintenant " . $this->pointsDeVie . " points de vie. <br>";
+            $_SESSION['messages'][] = $this->nom . " reçoit " . $degats . " points de dégâts. " . $this->nom . " a maintenant " . $this->pointsDeVie . " points de vie.";
         }
 
         public function estKO(){
@@ -46,7 +40,40 @@
             }
         }
 
-        abstract public function capaciteSpeciale(Pokemon $adversaire, Attaque $attaque);
+        public function seBattre(InterfaceCombattant $adversaire, Attaque $attaque): void{
+            if ((new AttaqueModel)->isLinkedToPokemon($attaque->getID(), $this->id)) {
+
+                $attaque->executerAttaque($this, $adversaire);
+            } else {
+                $_SESSION['messages'][] = $this->nom . " ne peut pas utiliser cette attaque.";
+            }
+        }
+
+        public function utiliserAttaqueSpeciale(InterfaceCombattant $adversaire): void{
+            $this->capaciteSpeciale($adversaire);
+        }
+
+
+        public static function create(array $data): Pokemon{
+            switch($data['type']){
+                case 'Feu':
+                    $instance = new PokemonFeu($data['id'], $data['nom'], $data['pointsDeVie'], $data['puissanceAttaque'], $data['defense'], $data['vitesse']);
+                    break;
+                case 'Eau':
+                    $instance = new PokemonEau($data['id'], $data['nom'], $data['pointsDeVie'], $data['puissanceAttaque'], $data['defense'], $data['vitesse']);
+                    break;
+                case 'Plante':
+                    $instance = new PokemonPlante($data['id'], $data['nom'], $data['pointsDeVie'], $data['puissanceAttaque'], $data['defense'], $data['vitesse']);
+                    break;
+                default:
+                    return null;
+            }
+            $instance->attaques = (new PokemonModel)->getAttaquesByPokemonID($data['id']);
+            return $instance;
+        }
+
+        abstract public function capaciteSpeciale(Pokemon $adversaire);
     }
 
 ?>
+
